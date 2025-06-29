@@ -18,4 +18,14 @@ class Volunteer extends Model
         'role',
         'licenses',
     ];
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function accessLogs()
+    {
+        return $this->hasMany(AccessLog::class);
+    }
 }
