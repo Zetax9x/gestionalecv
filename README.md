@@ -16,5 +16,8 @@ Questo progetto Laravel fornisce un'API di base per la gestione di volontari, me
 - CRUD volontari
 - CRUD mezzi
 - CRUD checklist
+- CRUD documenti (allegabili a volontari o mezzi)
+- CRUD DPI (assegnazione dispositivi di protezione ai volontari)
+- Gestione ruoli e permessi (ACL) con registrazione log accessi
 
 Le rotte API sono definite in `routes/api.php`.
