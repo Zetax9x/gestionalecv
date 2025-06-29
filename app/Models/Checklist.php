@@ -10,6 +10,9 @@ class Checklist extends Model
     use HasFactory;
 
     protected $fillable = [
-        // TODO: add fillable columns
+        'vehicle_id',
+        'name',
+        'description',
+        'compliant',
     ];
 }

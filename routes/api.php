@@ -1,18 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VolunteerController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\ChecklistController;
 
-// Volunteer routes
-Route::prefix('volunteers')->group(function () {
-    // TODO: add volunteer endpoints
-});
-
-// Vehicle routes
-Route::prefix('vehicles')->group(function () {
-    // TODO: add vehicle endpoints
-});
-
-// Checklist routes
-Route::prefix('checklists')->group(function () {
-    // TODO: add checklist endpoints
-});
+Route::apiResource('volunteers', VolunteerController::class);
+Route::apiResource('vehicles', VehicleController::class);
+Route::apiResource('checklists', ChecklistController::class);

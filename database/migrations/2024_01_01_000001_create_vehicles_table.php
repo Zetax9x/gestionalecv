@@ -10,6 +10,12 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
+            $table->string('type');
+            $table->string('license_plate')->unique();
+            $table->string('model')->nullable();
+            $table->date('registration_date')->nullable();
+            $table->date('insurance_expiry')->nullable();
+            $table->date('inspection_expiry')->nullable();
             $table->timestamps();
         });
     }

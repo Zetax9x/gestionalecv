@@ -10,6 +10,11 @@ class Vehicle extends Model
     use HasFactory;
 
     protected $fillable = [
-        // TODO: add fillable columns
+        'type',
+        'license_plate',
+        'model',
+        'registration_date',
+        'insurance_expiry',
+        'inspection_expiry',
     ];
 }

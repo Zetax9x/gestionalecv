@@ -10,6 +10,10 @@ return new class extends Migration
     {
         Schema::create('checklists', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('vehicle_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->boolean('compliant')->default(true);
             $table->timestamps();
         });
     }

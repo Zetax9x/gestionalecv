@@ -10,6 +10,12 @@ class Volunteer extends Model
     use HasFactory;
 
     protected $fillable = [
-        // TODO: add fillable columns
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'tax_code',
+        'role',
+        'licenses',
     ];
 }
