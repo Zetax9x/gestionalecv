@@ -16,5 +16,6 @@ Questo progetto Laravel fornisce un'API di base per la gestione di volontari, me
 - CRUD volontari
 - CRUD mezzi
 - CRUD checklist
+- CRUD documenti (allegabili a volontari o mezzi)
 
 Le rotte API sono definite in `routes/api.php`.
