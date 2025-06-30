@@ -10,7 +10,7 @@ cp -r /var/www/html /var/www/html_backup_$(date +%Y%m%d_%H%M%S)
 
 # 2. Correzione Model Notifica
 echo "🔄 Correzione Model Notifica..."
-cat > /var/www/html/app/Models/Notifica.php << 'EOF'
+cat > app/Models/Notifica.php << 'EOF'
 <?php
 
 namespace App\Models;
@@ -99,7 +99,7 @@ EOF
 # 3. Correzione Model User
 echo "🔄 Correzione Model User..."
 # Aggiungere/correggere i metodi notifiche nel model User
-cat >> /var/www/html/app/Models/User.php << 'EOF'
+cat >> app/Models/User.php << 'EOF'
 
     // Relazioni notifiche corrette
     public function notifiche()
@@ -134,7 +134,7 @@ EOF
 
 # 4. Correzione middleware
 echo "🔄 Correzione Middleware CheckPermissions..."
-cat > /var/www/html/app/Http/Middleware/CheckPermissions.php << 'EOF'
+cat > app/Http/Middleware/CheckPermissions.php << 'EOF'
 <?php
 
 namespace App\Http\Middleware;
@@ -177,7 +177,7 @@ EOF
 
 # 5. Aggiungere migration password_reset_tokens
 echo "🔄 Creazione migration password_reset_tokens..."
-cat > /var/www/html/database/migrations/2025_07_01_000050_create_password_reset_tokens_table.php << 'EOF'
+cat > database/migrations/2025_07_01_000050_create_password_reset_tokens_table.php << 'EOF'
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -204,12 +204,12 @@ EOF
 
 # 6. Correzione NotificheController
 echo "🔄 Correzione NotificheController..."
-sed -i 's/Auth::user()->notifiche()/Auth::user()->notifiche/g' /var/www/html/app/Http/Controllers/NotificheController.php
-sed -i 's/whereNull('"'"'read_at'"'"')/whereNull('"'"'read_at'"'"')/g' /var/www/html/app/Http/Controllers/NotificheController.php
+sed -i 's/Auth::user()->notifiche()/Auth::user()->notifiche/g' app/Http/Controllers/NotificheController.php
+sed -i 's/whereNull('"'"'read_at'"'"')/whereNull('"'"'read_at'"'"')/g' app/Http/Controllers/NotificheController.php
 
 # 7. Aggiornare Seeder
 echo "🔄 Aggiornamento DatabaseSeeder..."
-cat >> /var/www/html/database/seeders/DatabaseSeeder.php << 'EOF'
+cat >> database/seeders/DatabaseSeeder.php << 'EOF'
 
         // Inizializza permessi di default
         try {
@@ -223,7 +223,7 @@ EOF
 # 8. Correzione route web.php (rimuovere duplicati)
 echo "🔄 Pulizia routes..."
 # Backup routes
-cp /var/www/html/routes/web.php /var/www/html/routes/web.php.backup
+cp routes/web.php routes/web.php.backup
 
 # 9. Eseguire migrazioni e seed
 echo "🔄 Esecuzione migrazioni..."
@@ -244,8 +244,8 @@ php artisan route:clear
 echo "🔄 Impostazione permessi file..."
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
-chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/bootstrap/cache
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
 
 echo ""
 echo "✅ CORREZIONI COMPLETATE!"
