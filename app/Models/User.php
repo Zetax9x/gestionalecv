@@ -57,7 +57,7 @@ class User extends Authenticatable
     }
 public function notifiche()
 {
-    return \App\Models\Notifica::perUtente($this->id);
+     return $this->hasMany(Notifica::class, 'user_id');
 }
 
 /**
@@ -65,7 +65,7 @@ public function notifiche()
  */
 public function notificheNonLette()
 {
-    return \App\Models\Notifica::nonLette($this->id);
+     return $this->hasMany(Notifica::class, 'user_id')->whereNull('read_at');
 }
     /**
      * Documenti attraverso volontario

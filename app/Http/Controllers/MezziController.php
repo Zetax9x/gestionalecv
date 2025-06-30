@@ -20,7 +20,7 @@ class MezziController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('can_access_mezzi')->except(['checklistCreate', 'checklistStore']);
+        $this->middleware('can:access_mezzi')->except(['checklistCreate', 'checklistStore']);
         $this->middleware('permission:mezzi,visualizza')->only(['index', 'show']);
         $this->middleware('permission:mezzi,crea')->only(['create', 'store']);
         $this->middleware('permission:mezzi,modifica')->only(['edit', 'update']);
