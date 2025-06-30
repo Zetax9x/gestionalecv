@@ -163,7 +163,7 @@
                                 <span>Amministrazione</span>
                             </h6>
                             <a class="nav-link {{ request()->routeIs('permissions.*') ? 'active' : '' }}" 
-                               href="{{ route('permissions.index') }}">
+                               href="{{ route('admin.permissions.index') }}">
                                 <i class="bi bi-gear"></i>
                                 Permessi ACL
                             </a>
