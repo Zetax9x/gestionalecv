@@ -112,7 +112,7 @@ class ChecklistCompilata extends Model
         return $query->where('completata', true);
     }
 
-    public function scopeConAномalie($query)
+    public function scopeConAnomalie($query)
     {
         return $query->whereNotNull('anomalie_riscontrate')
                     ->whereJsonLength('anomalie_riscontrate', '>', 0);
@@ -127,7 +127,7 @@ class ChecklistCompilata extends Model
     // METODI UTILITY
     // ===================================
 
-    public function hasAnomaliae()
+    public function hasAnomalie()
     {
         return $this->numero_anomalie > 0;
     }

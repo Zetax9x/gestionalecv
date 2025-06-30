@@ -115,7 +115,7 @@ class Volontario extends Model
     // METODI UTILITY
     // ===================================
 
-    public static function generaNumeraTessera()
+    public static function generaNumeroTessera()
     {
         $anno = now()->year;
         $ultimoNumero = self::where('tessera_numero', 'like', $anno . '%')->max('tessera_numero');

@@ -109,7 +109,7 @@ class VolontariController extends Controller
     // ===================================
     public function create()
     {
-        $numeroTessera = Volontario::generaNumeraTessera();
+        $numeroTessera = Volontario::generaNumeroTessera();
         
         return view('volontari.create', compact('numeroTessera'));
     }
@@ -175,7 +175,7 @@ class VolontariController extends Controller
             // Crea volontario
             $volontario = Volontario::create([
                 'user_id' => $user->id,
-                'tessera_numero' => $validated['tessera_numero'] ?: Volontario::generaNumeraTessera(),
+                'tessera_numero' => $validated['tessera_numero'] ?: Volontario::generaNumeroTessera(),
                 'data_iscrizione' => $validated['data_iscrizione'],
                 'data_visita_medica' => $validated['data_visita_medica'],
                 'scadenza_visita_medica' => $validated['scadenza_visita_medica'],

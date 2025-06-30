@@ -571,10 +571,13 @@ class Ticket extends Model
     public function scopeInRitardo($query)
     {
         return $query->whereIn('stato', ['aperto', 'assegnato', 'in_corso'])
-                     ->get()
-                     ->filter(function($ticket) {
-                         return $ticket->in_ritardo;
-                     });
+                     ->whereRaw(
+                         "TIMESTAMPDIFF(HOUR, data_apertura, NOW()) > CASE priorita " .
+                         "WHEN 'critica' THEN 4 " .
+                         "WHEN 'alta' THEN 24 " .
+                         "WHEN 'media' THEN 72 " .
+                         "ELSE 168 END"
+                     );
     }
 
     public function scopeRicerca($query, $termine)
