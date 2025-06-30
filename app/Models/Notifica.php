@@ -18,12 +18,19 @@ class Notifica extends Model
         'titolo',
         'messaggio',
         'tipo',
-        'letta_da'
+        'letta_da',
+        'user_id',
+        'priorita',
+        'url_azione',
+        'testo_azione',
+        'scade_il',
+        'metadati'
     ];
 
     protected $casts = [
         'destinatari' => 'array',
-        'letta_da' => 'array'
+        'letta_da' => 'array',
+        'metadati' => 'array'
     ];
 
     // ===================================
