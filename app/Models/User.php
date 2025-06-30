@@ -56,7 +56,18 @@ class User extends Authenticatable
     {
         return $this->hasOne(Volontario::class);
     }
+public function notifiche()
+{
+    return \App\Models\Notifica::perUtente($this->id);
+}
 
+/**
+ * Notifiche non lette dell'utente
+ */
+public function notificheNonLette()
+{
+    return \App\Models\Notifica::nonLette($this->id);
+}
     /**
      * Documenti attraverso volontario
      */
