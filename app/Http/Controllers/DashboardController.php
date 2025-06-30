@@ -73,6 +73,72 @@ class DashboardController extends Controller
     }
 
     /**
+ * Quick actions personalizzate per l'utente
+ */
+private function getQuickActions($user)
+{
+    try {
+        $actions = [];
+
+        // Azioni base per tutti
+        $actions[] = [
+            'titolo' => 'Nuovo Evento',
+            'descrizione' => 'Crea un nuovo evento formativo',
+            'icona' => 'calendar-plus',
+            'url' => route('eventi.create'),
+            'colore' => 'blue'
+        ];
+
+        // Se può gestire volontari
+        if ($user->hasPermission('volontari', 'create')) {
+            $actions[] = [
+                'titolo' => 'Nuovo Volontario',
+                'descrizione' => 'Registra un nuovo volontario',
+                'icona' => 'user-plus',
+                'url' => route('volontari.create'),
+                'colore' => 'green'
+            ];
+        }
+
+        // Se può gestire mezzi
+        if ($user->hasPermission('mezzi', 'visualizza')) {
+            $actions[] = [
+                'titolo' => 'Gestione Mezzi',
+                'descrizione' => 'Visualizza stato mezzi',
+                'icona' => 'truck',
+                'url' => route('mezzi.index'),
+                'colore' => 'orange'
+            ];
+        }
+
+        $actions[] = [
+            'titolo' => 'Nuovo Ticket',
+            'descrizione' => 'Apri un ticket di supporto',
+            'icona' => 'ticket',
+            'url' => route('tickets.create'),
+            'colore' => 'purple'
+        ];
+
+        // Se è admin
+        if ($user->isAdmin()) {
+            $actions[] = [
+                'titolo' => 'Configurazione',
+                'descrizione' => 'Impostazioni sistema',
+                'icona' => 'settings',
+                'url' => route('admin.index'),
+                'colore' => 'gray'
+            ];
+        }
+
+        return $actions;
+
+    } catch (\Exception $e) {
+        Log::error('Errore nel caricamento quick actions: ' . $e->getMessage());
+        return [];
+    }
+}
+
+    /**
      * Statistiche generali del sistema
      */
     private function getStatisticheGenerali()
