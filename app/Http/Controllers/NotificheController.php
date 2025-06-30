@@ -25,7 +25,7 @@ class NotificheController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Auth::user()->notifiche()->orderBy('created_at', 'desc');
+            $query = Auth::user()->notifiche->orderBy('created_at', 'desc');
 
             // Filtri
             if ($request->filled('tipo')) {
@@ -56,10 +56,10 @@ class NotificheController extends Controller
 
             // Statistiche
             $stats = [
-                'totali' => Auth::user()->notifiche()->count(),
-                'non_lette' => Auth::user()->notifiche()->whereNull('read_at')->count(),
-                'oggi' => Auth::user()->notifiche()->whereDate('created_at', today())->count(),
-                'questa_settimana' => Auth::user()->notifiche()
+                'totali' => Auth::user()->notifiche->count(),
+                'non_lette' => Auth::user()->notifiche->whereNull('read_at')->count(),
+                'oggi' => Auth::user()->notifiche->whereDate('created_at', today())->count(),
+                'questa_settimana' => Auth::user()->notifiche
                     ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
                     ->count()
             ];
@@ -346,7 +346,7 @@ class NotificheController extends Controller
     public function unreadCount()
     {
         try {
-            $count = Auth::user()->notifiche()->whereNull('read_at')->count();
+            $count = Auth::user()->notifiche->whereNull('read_at')->count();
             
             return response()->json([
                 'count' => $count,

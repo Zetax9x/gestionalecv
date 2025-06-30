@@ -8,27 +8,28 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermissions
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next, string $modulo, string $azione): Response
     {
         $user = auth()->user();
 
-        // Se l'utente non è autenticato, reindirizza al login
         if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Non autenticato'], 401);
+            }
             return redirect()->route('login');
         }
 
-        // Se l'utente non è attivo, blocca l'accesso
         if (!$user->isAttivo()) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Account disattivato'], 403);
+            }
             abort(403, 'Account disattivato. Contatta l\'amministratore.');
         }
 
-        // Verifica i permessi per il modulo e azione specifica
         if (!$user->hasPermission($modulo, $azione)) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Permesso negato'], 403);
+            }
             abort(403, 'Non hai i permessi per accedere a questa sezione.');
         }
 

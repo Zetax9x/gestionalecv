@@ -419,3 +419,32 @@ public function notificheNonLette()
         });
     }
 }
+    // Relazioni notifiche corrette
+    public function notifiche()
+    {
+        return $this->hasMany(Notifica::class);
+    }
+
+    public function notificheNonLette()
+    {
+        return $this->hasMany(Notifica::class)->whereNull('read_at');
+    }
+
+    public function countNotificheNonLette()
+    {
+        return $this->notificheNonLette()->count();
+    }
+
+    public function getNotificheNonLette()
+    {
+        return $this->notificheNonLette()->orderBy('created_at', 'desc')->get();
+    }
+
+    public function marcaNotificaLetta($notificaId)
+    {
+        $notifica = $this->notifiche()->find($notificaId);
+        if ($notifica) {
+            $notifica->marcaComeLetta();
+        }
+    }
+}
