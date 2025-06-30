@@ -217,9 +217,9 @@ class MovimentoMagazzino extends Model
         if (!$articolo) return;
 
         if ($this->isCarico()) {
-            $articolo->increment('quantita_disponibile', $this->quantita);
+            $articolo->increment('quantita_attuale', $this->quantita);
         } else {
-            $articolo->decrement('quantita_disponibile', $this->quantita);
+            $articolo->decrement('quantita_attuale', $this->quantita);
         }
     }
 }

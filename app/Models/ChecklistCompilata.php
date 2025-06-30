@@ -131,7 +131,7 @@ class ChecklistCompilata extends Model
     // METODI UTILITY
     // ===================================
 
-    public function hasAnomaliae()
+    public function hasAnomalie()
     {
         return $this->numero_anomalie > 0;
     }
