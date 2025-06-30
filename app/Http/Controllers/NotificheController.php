@@ -453,24 +453,34 @@ class NotificheController extends Controller
             $oggi = now();
             $traUnMese = $oggi->copy()->addMonth();
 
-            // Scadenze volontari (patenti, certificati medici, etc.)
-            $volontariConScadenze = Volontario::where('stato', 'attivo')
-                ->where(function($query) use ($oggi, $traUnMese) {
-                    $query->whereBetween('scadenza_patente', [$oggi, $traUnMese])
-                          ->orWhereBetween('scadenza_certificato_medico', [$oggi, $traUnMese])
-                          ->orWhereBetween('scadenza_formazione', [$oggi, $traUnMese]);
+            // Volontari con visite mediche o documenti in scadenza
+            $volontariConScadenze = Volontario::where('attivo', true)
+                ->where(function ($query) use ($oggi, $traUnMese) {
+                    $query->whereDate('scadenza_visita_medica', '>=', $oggi)
+                          ->whereDate('scadenza_visita_medica', '<=', $traUnMese);
+                })
+                ->orWhereHas('documenti', function ($query) use ($oggi, $traUnMese) {
+                    $query->whereNotNull('data_scadenza')
+                          ->whereDate('data_scadenza', '>=', $oggi)
+                          ->whereDate('data_scadenza', '<=', $traUnMese);
                 })
                 ->get();
 
             foreach ($volontariConScadenze as $volontario) {
                 $scadenze = [];
                 
-                if ($volontario->scadenza_patente && $volontario->scadenza_patente <= $traUnMese) {
-                    $scadenze[] = "Patente (scade il " . Carbon::parse($volontario->scadenza_patente)->format('d/m/Y') . ")";
+                if ($volontario->scadenza_visita_medica && $volontario->scadenza_visita_medica <= $traUnMese) {
+                    $scadenze[] = 'Visita medica (scade il ' . Carbon::parse($volontario->scadenza_visita_medica)->format('d/m/Y') . ')';
                 }
-                
-                if ($volontario->scadenza_certificato_medico && $volontario->scadenza_certificato_medico <= $traUnMese) {
-                    $scadenze[] = "Certificato medico (scade il " . Carbon::parse($volontario->scadenza_certificato_medico)->format('d/m/Y') . ")";
+
+                $documentiInScadenza = $volontario->documenti()
+                    ->whereNotNull('data_scadenza')
+                    ->whereDate('data_scadenza', '>=', $oggi)
+                    ->whereDate('data_scadenza', '<=', $traUnMese)
+                    ->get();
+
+                foreach ($documentiInScadenza as $doc) {
+                    $scadenze[] = $doc->nome_documento . ' (scade il ' . $doc->data_scadenza->format('d/m/Y') . ')';
                 }
 
                 if (!empty($scadenze)) {
