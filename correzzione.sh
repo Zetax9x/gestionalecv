@@ -227,7 +227,6 @@ cp routes/web.php routes/web.php.backup
 
 # 9. Eseguire migrazioni e seed
 echo "🔄 Esecuzione migrazioni..."
-cd /var/www/html
 php artisan migrate --force
 
 echo "🔄 Inizializzazione permessi..."
@@ -242,8 +241,6 @@ php artisan route:clear
 
 # 11. Permessi file
 echo "🔄 Impostazione permessi file..."
-chown -R www-data:www-data /var/www/html
-chmod -R 755 /var/www/html
 chmod -R 775 storage
 chmod -R 775 bootstrap/cache
 
