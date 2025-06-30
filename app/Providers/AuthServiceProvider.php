@@ -43,5 +43,16 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('permission', function (User $user, $modulo, $azione) {
             return $user->hasPermission($modulo, $azione);
         });
+         Gate::define('access_mezzi', function (User $user) {
+        return $user->canAccessMezzi();
+    });
+    
+    Gate::define('view_statistics', function (User $user) {
+        return in_array($user->ruolo, ['admin', 'direttivo', 'mezzi']);
+    });
+    
+    Gate::define('manage_users', function (User $user) {
+        return $user->ruolo === 'admin';
+    });
     }
 }

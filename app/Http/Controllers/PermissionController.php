@@ -30,53 +30,61 @@ class PermissionController extends Controller
     /**
      * Aggiorna i permessi
      */
-    public function update(Request $request)
-    {
-        $validated = $request->validate([
-            'permissions' => 'required|array',
-            'permissions.*.modulo' => 'required|string',
-            'permissions.*.ruolo' => 'required|string',
-            'permissions.*.visualizza' => 'boolean',
-            'permissions.*.crea' => 'boolean',
-            'permissions.*.modifica' => 'boolean',
-            'permissions.*.elimina' => 'boolean',
-            'permissions.*.configura' => 'boolean',
-        ]);
+  public function update(Request $request)
+{
+    $validated = $request->validate([
+        'permissions' => 'required|array',
+        'permissions.*.modulo' => 'required|string',
+        'permissions.*.ruolo' => 'required|string',
+        'permissions.*.visualizza' => 'boolean',
+        'permissions.*.crea' => 'boolean',
+        'permissions.*.modifica' => 'boolean',
+        'permissions.*.elimina' => 'boolean',
+        'permissions.*.configura' => 'boolean',
+    ]);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
-            foreach ($validated['permissions'] as $permissionData) {
-                Permission::updateOrCreate(
-                    [
-                        'modulo' => $permissionData['modulo'],
-                        'ruolo' => $permissionData['ruolo']
-                    ],
-                    [
-                        'visualizza' => $permissionData['visualizza'] ?? false,
-                        'crea' => $permissionData['crea'] ?? false,
-                        'modifica' => $permissionData['modifica'] ?? false,
-                        'elimina' => $permissionData['elimina'] ?? false,
-                        'configura' => $permissionData['configura'] ?? false,
-                    ]
-                );
-            }
+    try {
+        foreach ($validated['permissions'] as $permissionData) {
+            Permission::updateOrCreate(
+                [
+                    'modulo' => $permissionData['modulo'],
+                    'ruolo' => $permissionData['ruolo']
+                ],
+                [
+                    'visualizza' => $permissionData['visualizza'] ?? false,
+                    'crea' => $permissionData['crea'] ?? false,
+                    'modifica' => $permissionData['modifica'] ?? false,
+                    'elimina' => $permissionData['elimina'] ?? false,
+                    'configura' => $permissionData['configura'] ?? false,
+                ]
+            );
+        }
 
-            Permission::clearCache();
-            DB::commit();
+        Permission::clearCache();
+        DB::commit();
 
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Permessi aggiornati con successo'
             ]);
+        }
 
-        } catch (\Exception $e) {
-            DB::rollback();
-            
+        return redirect()->back()->with('success', 'Permessi aggiornati con successo');
+
+    } catch (\Exception $e) {
+        DB::rollback();
+        
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Errore nell\'aggiornamento: ' . $e->getMessage()
             ], 500);
         }
+
+        return back()->withErrors(['error' => 'Errore nell\'aggiornamento: ' . $e->getMessage()]);
     }
+}
 }

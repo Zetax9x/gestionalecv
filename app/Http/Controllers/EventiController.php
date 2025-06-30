@@ -18,10 +18,10 @@ class EventiController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('check.permission:eventi.view')->only(['index', 'show']);
-        $this->middleware('check.permission:eventi.create')->only(['create', 'store']);
-        $this->middleware('check.permission:eventi.edit')->only(['edit', 'update']);
-        $this->middleware('check.permission:eventi.delete')->only(['destroy']);
+        $this->middleware('permission:eventi,visualizza')->only(['index', 'show']);
+$this->middleware('permission:eventi,crea')->only(['create', 'store']);
+$this->middleware('permission:eventi,modifica')->only(['edit', 'update']);
+$this->middleware('permission:eventi,elimina')->only(['destroy']);
     }
 
     /**

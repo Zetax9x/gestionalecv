@@ -80,6 +80,13 @@ class DatabaseSeeder extends Seeder
             'ruolo' => 'mezzi',
             'attivo' => true,
         ]);
+         // Inizializza permessi di default
+        try {
+            \App\Models\Permission::inizializzaPermessiDefault();
+            echo "✅ PERMESSI INIZIALIZZATI\n";
+        } catch (\Exception $e) {
+            echo "⚠️  Errore inizializzazione permessi: " . $e->getMessage() . "\n";
+        }
 
         echo "\n✅ GESTIONALE CROCE VERDE - UTENTI CREATI:\n";
         echo "===============================================\n";
@@ -91,10 +98,4 @@ class DatabaseSeeder extends Seeder
         echo "🚀 Ora puoi fare login su: http://your-ip:8000/login\n\n";
     }
 }
-        // Inizializza permessi di default
-        try {
-            \App\Models\Permission::inizializzaPermessiDefault();
-            echo "✅ PERMESSI INIZIALIZZATI\n";
-        } catch (\Exception $e) {
-            echo "⚠️  Errore inizializzazione permessi: " . $e->getMessage() . "\n";
-        }
+       

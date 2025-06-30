@@ -290,9 +290,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [DashboardController::class, 'admin'])->name('index');
         
         // Gestione permessi ACL
-       Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
-Route::put('/permissions', [PermissionController::class, 'update'])->name('permissions.update');
-        
+       Route::prefix('permissions')->name('permissions.')->group(function () {
+    Route::get('/', [PermissionController::class, 'index'])->name('index');
+    Route::put('/', [PermissionController::class, 'update'])->name('update');
+});   
         // Gestione utenti
         Route::get('/utenti', [DashboardController::class, 'utenti'])->name('utenti');
         Route::get('/utenti/{user}/edit', [DashboardController::class, 'editUtente'])->name('utenti.edit');
