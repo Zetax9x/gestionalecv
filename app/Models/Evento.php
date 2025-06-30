@@ -14,37 +14,64 @@ class Evento extends Model
     protected $table = 'eventi';
 
     protected $fillable = [
+        'organizzatore_id',
         'titolo',
         'descrizione',
+        'tipo',
+        'categoria',
         'data_inizio',
         'data_fine',
+        'evento_multiplo',
+        'date_aggiuntive',
+        'durata_ore',
         'luogo',
         'indirizzo_completo',
-        'tipo_evento',
-        'stato',
+        'aula_sala',
+        'latitudine',
+        'longitudine',
         'max_partecipanti',
-        'ore_formative',
+        'min_partecipanti',
+        'richiede_conferma',
+        'lista_attesa',
+        'scadenza_iscrizioni',
         'costo_partecipazione',
+        'rilascia_attestato',
+        'tipo_attestato',
+        'crediti_ecm',
+        'provider_ecm',
+        'docenti',
+        'staff',
         'materiali_necessari',
-        'note_organizzatore',
-        'organizzatore_id',
-        'data_scadenza_iscrizioni',
-        'certificato_rilasciato',
-        'codice_evento',
-        'link_materiali',
-        'feedback_richiesto',
-        'visibile_pubblico'
+        'prerequisiti',
+        'stato',
+        'motivo_annullamento',
+        'data_annullamento',
+        'invia_promemoria',
+        'giorni_promemoria',
+        'ultimo_promemoria',
+        'abilita_feedback',
+        'valutazione_media',
+        'numero_valutazioni',
+        'note',
+        'locandina',
+        'allegati'
     ];
 
     protected $casts = [
         'data_inizio' => 'datetime',
         'data_fine' => 'datetime',
-        'data_scadenza_iscrizioni' => 'datetime',
+        'scadenza_iscrizioni' => 'datetime',
+        'data_annullamento' => 'datetime',
+        'ultimo_promemoria' => 'datetime',
         'costo_partecipazione' => 'decimal:2',
-        'certificato_rilasciato' => 'boolean',
-        'feedback_richiesto' => 'boolean',
-        'visibile_pubblico' => 'boolean',
-        'materiali_necessari' => 'array'
+        'evento_multiplo' => 'boolean',
+        'richiede_conferma' => 'boolean',
+        'lista_attesa' => 'boolean',
+        'rilascia_attestato' => 'boolean',
+        'docenti' => 'array',
+        'staff' => 'array',
+        'giorni_promemoria' => 'array',
+        'abilita_feedback' => 'boolean'
     ];
 
     // ===================================
@@ -63,8 +90,8 @@ class Evento extends Model
 
     public function volontari()
     {
-        return $this->belongsToMany(Volontario::class, 'partecipazione_eventi')
-                    ->withPivot(['stato_partecipazione', 'data_iscrizione', 'note'])
+        return $this->belongsToMany(Volontario::class, 'partecipazioni_eventi')
+                    ->withPivot(['stato', 'data_iscrizione', 'note_presenza'])
                     ->withTimestamps();
     }
 
@@ -114,7 +141,7 @@ class Evento extends Model
         }
         
         $partecipanti = $this->partecipazioni()
-                            ->where('stato_partecipazione', 'confermato')
+                            ->where('stato', 'confermato')
                             ->count();
                             
         return $this->max_partecipanti - $partecipanti;
@@ -147,7 +174,7 @@ class Evento extends Model
 
     public function scopePerTipo($query, $tipo)
     {
-        return $query->where('tipo_evento', $tipo);
+        return $query->where('tipo', $tipo);
     }
 
     // ===================================
@@ -176,7 +203,7 @@ class Evento extends Model
 
     public function iscrizioniAperte()
     {
-        if ($this->data_scadenza_iscrizioni && $this->data_scadenza_iscrizioni < now()) {
+        if ($this->scadenza_iscrizioni && $this->scadenza_iscrizioni < now()) {
             return false;
         }
         

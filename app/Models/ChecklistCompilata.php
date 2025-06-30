@@ -15,21 +15,25 @@ class ChecklistCompilata extends Model
         'mezzo_id',
         'user_id',
         'template_id',
-        'data_controllo',
+        'risultati',
+        'conforme',
+        'note_generali',
+        'data_compilazione',
         'km_mezzo',
-        'risultati_controlli',
-        'anomalie_riscontrate',
-        'note_aggiuntive',
-        'stato_generale',
-        'firma_digitale',
-        'completata'
+        'turno',
+        'destinazione_servizio',
+        'supervisore_id',
+        'data_approvazione',
+        'note_supervisore',
+        'foto_anomalie'
     ];
 
     protected $casts = [
-        'data_controllo' => 'datetime',
-        'risultati_controlli' => 'array',
-        'anomalie_riscontrate' => 'array',
-        'completata' => 'boolean'
+        'data_compilazione' => 'datetime',
+        'data_approvazione' => 'datetime',
+        'risultati' => 'array',
+        'foto_anomalie' => 'array',
+        'conforme' => 'boolean'
     ];
 
     // ===================================
@@ -65,7 +69,7 @@ class ChecklistCompilata extends Model
             'critico' => 'Critico'
         ];
         
-        return $labels[$this->stato_generale] ?? 'Non definito';
+        return $this->conforme ? 'Conforme' : 'Non conforme';
     }
 
     public function getColoreStatoAttribute()
@@ -78,15 +82,15 @@ class ChecklistCompilata extends Model
             'critico' => 'danger'
         ];
         
-        return $colori[$this->stato_generale] ?? 'secondary';
+        return $this->conforme ? 'success' : 'danger';
     }
 
     public function getPercentualeCompletamentoAttribute()
     {
-        if (!$this->risultati_controlli) return 0;
-        
-        $totaleControlli = count($this->risultati_controlli);
-        $controlliCompletati = count(array_filter($this->risultati_controlli, function($controllo) {
+        if (!$this->risultati) return 0;
+
+        $totaleControlli = count($this->risultati);
+        $controlliCompletati = count(array_filter($this->risultati, function($controllo) {
             return isset($controllo['eseguito']) && $controllo['eseguito'];
         }));
         
@@ -95,7 +99,7 @@ class ChecklistCompilata extends Model
 
     public function getNumeroAnomalieAttribute()
     {
-        return $this->anomalie_riscontrate ? count($this->anomalie_riscontrate) : 0;
+        return $this->foto_anomalie ? count($this->foto_anomalie) : 0;
     }
 
     // ===================================
@@ -109,18 +113,18 @@ class ChecklistCompilata extends Model
 
     public function scopeCompletate($query)
     {
-        return $query->where('completata', true);
+        return $query->whereNotNull('data_approvazione');
     }
 
-    public function scopeConAномalie($query)
+    public function scopeConAnomalie($query)
     {
-        return $query->whereNotNull('anomalie_riscontrate')
-                    ->whereJsonLength('anomalie_riscontrate', '>', 0);
+        return $query->whereNotNull('foto_anomalie')
+                    ->whereJsonLength('foto_anomalie', '>', 0);
     }
 
     public function scopePerPeriodo($query, $dataInizio, $dataFine)
     {
-        return $query->whereBetween('data_controllo', [$dataInizio, $dataFine]);
+        return $query->whereBetween('data_compilazione', [$dataInizio, $dataFine]);
     }
 
     // ===================================
@@ -134,12 +138,12 @@ class ChecklistCompilata extends Model
 
     public function isCompletata()
     {
-        return $this->completata;
+        return !is_null($this->data_approvazione);
     }
 
     public function aggiungiAnomalia($descrizione, $gravita = 'media', $note = null)
     {
-        $anomalie = $this->anomalie_riscontrate ?? [];
+        $anomalie = $this->foto_anomalie ?? [];
         
         $anomalie[] = [
             'descrizione' => $descrizione,
@@ -148,14 +152,14 @@ class ChecklistCompilata extends Model
             'data_rilevazione' => now()->toDateTimeString()
         ];
         
-        $this->update(['anomalie_riscontrate' => $anomalie]);
+        $this->update(['foto_anomalie' => $anomalie]);
     }
 
     public function completa()
     {
         $this->update([
-            'completata' => true,
-            'firma_digitale' => auth()->user()->nome_completo . ' - ' . now()->format('d/m/Y H:i')
+            'data_approvazione' => now(),
+            'supervisore_id' => auth()->id()
         ]);
     }
 }

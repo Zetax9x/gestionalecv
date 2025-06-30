@@ -14,28 +14,46 @@ class Documento extends Model
 
     protected $fillable = [
         'volontario_id',
-        'user_id',
+        'caricato_da',
         'nome_documento',
-        'tipo_documento',
-        'numero_documento',
+        'tipo',
+        'sottotipo',
+        'file_path',
+        'file_originale',
+        'mime_type',
+        'file_size',
+        'hash_file',
         'data_rilascio',
         'data_scadenza',
         'ente_rilascio',
-        'path_file',
-        'dimensione_file',
-        'mime_type',
+        'numero_documento',
+        'stato_validazione',
+        'validato_da',
+        'data_validazione',
+        'note_validazione',
+        'notifica_scadenza',
+        'giorni_preavviso',
+        'ultima_notifica',
+        'tags',
         'note',
-        'verificato',
-        'data_verifica',
-        'verificato_da'
+        'obbligatorio',
+        'pubblico',
+        'versione',
+        'documento_precedente'
     ];
 
     protected $casts = [
         'data_rilascio' => 'date',
         'data_scadenza' => 'date',
-        'data_verifica' => 'datetime',
-        'verificato' => 'boolean',
-        'dimensione_file' => 'integer'
+        'data_validazione' => 'datetime',
+        'ultima_notifica' => 'datetime',
+        'notifica_scadenza' => 'boolean',
+        'obbligatorio' => 'boolean',
+        'pubblico' => 'boolean',
+        'tags' => 'array',
+        'file_size' => 'integer',
+        'giorni_preavviso' => 'integer',
+        'versione' => 'integer'
     ];
 
     // ===================================
@@ -49,12 +67,12 @@ class Documento extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'caricato_da');
     }
 
     public function verificatoDa()
     {
-        return $this->belongsTo(User::class, 'verificato_da');
+        return $this->belongsTo(User::class, 'validato_da');
     }
 
     // ===================================
@@ -63,17 +81,17 @@ class Documento extends Model
 
     public function getUrlDownloadAttribute()
     {
-        if ($this->path_file) {
-            return asset('storage/' . $this->path_file);
+        if ($this->file_path) {
+            return asset('storage/' . $this->file_path);
         }
         return null;
     }
 
     public function getDimensioneFormattataAttribute()
     {
-        if (!$this->dimensione_file) return 'N/A';
-        
-        $bytes = $this->dimensione_file;
+        if (!$this->file_size) return 'N/A';
+
+        $bytes = $this->file_size;
         $units = ['B', 'KB', 'MB', 'GB'];
         
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
@@ -125,7 +143,7 @@ class Documento extends Model
             'altro' => 'Altro'
         ];
         
-        return $labels[$this->tipo_documento] ?? 'Documento';
+        return $labels[$this->tipo] ?? 'Documento';
     }
 
     // ===================================
@@ -147,12 +165,12 @@ class Documento extends Model
 
     public function scopeVerificati($query)
     {
-        return $query->where('verificato', true);
+        return $query->where('stato_validazione', 'validato');
     }
 
     public function scopePerTipo($query, $tipo)
     {
-        return $query->where('tipo_documento', $tipo);
+        return $query->where('tipo', $tipo);
     }
 
     // ===================================
@@ -172,18 +190,18 @@ class Documento extends Model
     public function verifica($userId = null)
     {
         $this->update([
-            'verificato' => true,
-            'data_verifica' => now(),
-            'verificato_da' => $userId ?? auth()->id()
+            'stato_validazione' => 'validato',
+            'data_validazione' => now(),
+            'validato_da' => $userId ?? auth()->id()
         ]);
     }
 
     public function rimuoviVerifica()
     {
         $this->update([
-            'verificato' => false,
-            'data_verifica' => null,
-            'verificato_da' => null
+            'stato_validazione' => 'in_attesa',
+            'data_validazione' => null,
+            'validato_da' => null
         ]);
     }
 }
