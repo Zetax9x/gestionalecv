@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\{
+    AuthController,
     EventiController,
     VolontariController,
     MezziController,
@@ -11,43 +13,69 @@ use App\Http\Controllers\{
     DpiController,
     NotificheController,
     DashboardController,
-    ConfigurazioneController
+    PermissionController
 };
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| ROUTES DI AUTENTICAZIONE
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
-// Route pubblica - Homepage
+// Route pubbliche (guest)
+Route::middleware('guest')->group(function () {
+    // Login
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    
+    // Registrazione
+    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+    
+    // Password reset
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+});
+
+// Route protette (auth)
+Route::middleware('auth')->group(function () {
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Aggiorna ultimo accesso (AJAX)
+    Route::post('/user/update-accesso', [AuthController::class, 'updateAccesso'])->name('user.update-accesso');
+    
+    // Profilo utente
+    Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile.edit');
+    Route::put('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [AuthController::class, 'changePassword'])->name('profile.password');
+});
+
+/*
+|--------------------------------------------------------------------------
+| REDIRECT ROUTES
+|--------------------------------------------------------------------------
+*/
+
+// Redirect root
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    return view('welcome');
+    return redirect()->route('login');
 })->name('home');
 
-// Routes di autenticazione (Laravel Breeze/Jetstream)
-Auth::routes();
-
-// Redirect dopo login
+// Redirect home
 Route::get('/home', function () {
     return redirect()->route('dashboard');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Routes Autenticate
+| ROUTES AUTENTICATE DEL GESTIONALE
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     
     // Dashboard principale
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -69,6 +97,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Routes aggiuntive per eventi
         Route::patch('/{evento}/status', [EventiController::class, 'changeStatus'])->name('change-status');
         Route::post('/{evento}/duplicate', [EventiController::class, 'duplicate'])->name('duplicate');
+        Route::post('/{evento}/partecipa', [EventiController::class, 'partecipa'])->name('partecipa');
+        Route::delete('/{evento}/partecipa', [EventiController::class, 'rimuoviPartecipazione'])->name('rimuovi-partecipazione');
         
         // Export e Reports
         Route::get('/export/pdf', [EventiController::class, 'exportPdf'])->name('export.pdf');
@@ -95,6 +125,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{volontario}/eventi', [VolontariController::class, 'eventi'])->name('eventi');
         Route::get('/{volontario}/disponibilita', [VolontariController::class, 'disponibilita'])->name('disponibilita');
         Route::post('/{volontario}/certificazioni', [VolontariController::class, 'addCertificazione'])->name('add-certificazione');
+        Route::get('/{volontario}/documenti', [VolontariController::class, 'documenti'])->name('documenti');
+        Route::post('/{volontario}/documenti', [VolontariController::class, 'uploadDocumento'])->name('documenti.upload');
         
         // Import/Export
         Route::get('/import/template', [VolontariController::class, 'downloadTemplate'])->name('import.template');
@@ -107,7 +139,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | MEZZI - Gestione Mezzi di Trasporto
     |--------------------------------------------------------------------------
     */
-    Route::prefix('mezzi')->name('mezzi.')->middleware('can.access.mezzi')->group(function () {
+    Route::prefix('mezzi')->name('mezzi.')->group(function () {
         Route::get('/', [MezziController::class, 'index'])->name('index');
         Route::get('/create', [MezziController::class, 'create'])->name('create');
         Route::post('/', [MezziController::class, 'store'])->name('store');
@@ -120,6 +152,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{mezzo}/manutenzioni', [MezziController::class, 'manutenzioni'])->name('manutenzioni');
         Route::post('/{mezzo}/manutenzioni', [MezziController::class, 'addManutenzione'])->name('add-manutenzione');
         Route::patch('/manutenzioni/{manutenzione}', [MezziController::class, 'updateManutenzione'])->name('update-manutenzione');
+        
+        // Checklist
+        Route::get('/{mezzo}/checklist', [MezziController::class, 'checklist'])->name('checklist');
+        Route::post('/{mezzo}/checklist', [MezziController::class, 'saveChecklist'])->name('checklist.store');
         
         // Controlli e scadenze
         Route::get('/scadenze', [MezziController::class, 'scadenze'])->name('scadenze');
@@ -147,7 +183,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Gestione stato ticket
         Route::patch('/{ticket}/status', [TicketsController::class, 'changeStatus'])->name('change-status');
         Route::patch('/{ticket}/assign', [TicketsController::class, 'assign'])->name('assign');
+        Route::post('/{ticket}/assign', [TicketsController::class, 'assign'])->name('assign.post');
+        Route::post('/{ticket}/close', [TicketsController::class, 'close'])->name('close');
         Route::post('/{ticket}/comment', [TicketsController::class, 'addComment'])->name('add-comment');
+        Route::post('/{ticket}/allegati', [TicketsController::class, 'uploadAllegato'])->name('allegati.upload');
         
         // Filtri e viste speciali
         Route::get('/my/assigned', [TicketsController::class, 'myAssigned'])->name('my-assigned');
@@ -173,6 +212,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Movimenti magazzino
         Route::post('/{item}/carico', [MagazzinoController::class, 'carico'])->name('carico');
         Route::post('/{item}/scarico', [MagazzinoController::class, 'scarico'])->name('scarico');
+        Route::post('/{item}/movimento', [MagazzinoController::class, 'addMovimento'])->name('movimento');
         Route::get('/{item}/movimenti', [MagazzinoController::class, 'movimenti'])->name('movimenti');
         
         // Inventari e controlli
@@ -183,6 +223,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Reports
         Route::get('/reports/giacenze', [MagazzinoController::class, 'reportGiacenze'])->name('report-giacenze');
+        Route::get('/report/inventario', [MagazzinoController::class, 'reportInventario'])->name('report.inventario');
         Route::get('/reports/movimenti', [MagazzinoController::class, 'reportMovimenti'])->name('report-movimenti');
     });
 
@@ -203,6 +244,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Assegnazioni DPI
         Route::get('/{dpi}/assegnazioni', [DpiController::class, 'assegnazioni'])->name('assegnazioni');
         Route::post('/{dpi}/assegna', [DpiController::class, 'assegna'])->name('assegna');
+        Route::post('/{dpi}/ritira', [DpiController::class, 'ritira'])->name('ritira');
         Route::patch('/assegnazioni/{assegnazione}/restituisci', [DpiController::class, 'restituisci'])->name('restituisci');
         
         // Controlli e manutenzioni
@@ -226,10 +268,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [NotificheController::class, 'store'])->name('store');
         Route::get('/{notifica}', [NotificheController::class, 'show'])->name('show');
         Route::patch('/{notifica}/read', [NotificheController::class, 'markAsRead'])->name('mark-read');
+        Route::post('/{notifica}/mark-read', [NotificheController::class, 'markAsRead'])->name('mark-read.post');
         Route::delete('/{notifica}', [NotificheController::class, 'destroy'])->name('destroy');
         
         // Azioni multiple
         Route::patch('/mark-all-read', [NotificheController::class, 'markAllRead'])->name('mark-all-read');
+        Route::post('/mark-all-read', [NotificheController::class, 'markAllAsRead'])->name('mark-all-read.post');
         Route::delete('/clear-read', [NotificheController::class, 'clearRead'])->name('clear-read');
         
         // API per notifiche real-time
@@ -239,43 +283,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | CONFIGURAZIONE - Impostazioni Sistema
+    | AMMINISTRAZIONE - Gestione Permessi e Sistema
     |--------------------------------------------------------------------------
     */
-    Route::prefix('configurazione')->name('configurazione.')->middleware('check.permission:admin.access')->group(function () {
-        Route::get('/', [ConfigurazioneController::class, 'index'])->name('index');
+    Route::prefix('admin')->name('admin.')->middleware('can:admin')->group(function () {
+        Route::get('/', [DashboardController::class, 'admin'])->name('index');
         
-        // Gestione utenti e permessi
-        Route::get('/utenti', [ConfigurazioneController::class, 'utenti'])->name('utenti');
-        Route::get('/utenti/create', [ConfigurazioneController::class, 'createUtente'])->name('utenti.create');
-        Route::post('/utenti', [ConfigurazioneController::class, 'storeUtente'])->name('utenti.store');
-        Route::get('/utenti/{user}/edit', [ConfigurazioneController::class, 'editUtente'])->name('utenti.edit');
-        Route::put('/utenti/{user}', [ConfigurazioneController::class, 'updateUtente'])->name('utenti.update');
-        Route::delete('/utenti/{user}', [ConfigurazioneController::class, 'destroyUtente'])->name('utenti.destroy');
+        // Gestione permessi ACL
+        Route::resource('permissions', PermissionController::class)->only(['index', 'update']);
         
-        // Ruoli e permessi
-        Route::get('/ruoli', [ConfigurazioneController::class, 'ruoli'])->name('ruoli');
-        Route::post('/ruoli', [ConfigurazioneController::class, 'storeRuolo'])->name('ruoli.store');
-        Route::put('/ruoli/{role}', [ConfigurazioneController::class, 'updateRuolo'])->name('ruoli.update');
-        Route::delete('/ruoli/{role}', [ConfigurazioneController::class, 'destroyRuolo'])->name('ruoli.destroy');
-        
-        // Impostazioni generali
-        Route::get('/impostazioni', [ConfigurazioneController::class, 'impostazioni'])->name('impostazioni');
-        Route::put('/impostazioni', [ConfigurazioneController::class, 'updateImpostazioni'])->name('impostazioni.update');
-        
-        // Backup e manutenzione
-        Route::get('/backup', [ConfigurazioneController::class, 'backup'])->name('backup');
-        Route::post('/backup/create', [ConfigurazioneController::class, 'createBackup'])->name('backup.create');
-        Route::get('/backup/download/{file}', [ConfigurazioneController::class, 'downloadBackup'])->name('backup.download');
-        Route::delete('/backup/{file}', [ConfigurazioneController::class, 'deleteBackup'])->name('backup.delete');
+        // Gestione utenti
+        Route::get('/utenti', [DashboardController::class, 'utenti'])->name('utenti');
+        Route::get('/utenti/{user}/edit', [DashboardController::class, 'editUtente'])->name('utenti.edit');
+        Route::put('/utenti/{user}', [DashboardController::class, 'updateUtente'])->name('utenti.update');
+        Route::patch('/utenti/{user}/toggle-status', [DashboardController::class, 'toggleUserStatus'])->name('utenti.toggle-status');
         
         // Logs di sistema
-        Route::get('/logs', [ConfigurazioneController::class, 'logs'])->name('logs');
-        Route::get('/logs/{file}', [ConfigurazioneController::class, 'showLog'])->name('logs.show');
-        Route::delete('/logs/{file}', [ConfigurazioneController::class, 'deleteLog'])->name('logs.delete');
+        Route::get('/logs', [DashboardController::class, 'logs'])->name('logs');
+        Route::get('/logs/{file}', [DashboardController::class, 'showLog'])->name('logs.show');
+        Route::delete('/logs/{file}', [DashboardController::class, 'deleteLog'])->name('logs.delete');
         
         // Statistiche sistema
-        Route::get('/statistiche', [ConfigurazioneController::class, 'statistiche'])->name('statistiche');
+        Route::get('/statistiche', [DashboardController::class, 'statistiche'])->name('statistiche');
+        
+        // Impostazioni
+        Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
+        Route::put('/settings', [DashboardController::class, 'updateSettings'])->name('settings.update');
     });
 
     /*
@@ -367,49 +400,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 'conflicts' => $conflicts
             ]);
         })->name('check-availability');
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROFILE ROUTES - Gestione Profilo Utente
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', function() {
-            return view('profile.show');
-        })->name('show');
-        
-        Route::get('/edit', function() {
-            return view('profile.edit');
-        })->name('edit');
-        
-        Route::put('/update', function(Request $request) {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . Auth::id(),
-            ]);
-            
-            Auth::user()->update($request->only('name', 'email'));
-            
-            return back()->with('success', 'Profilo aggiornato con successo');
-        })->name('update');
-        
-        Route::get('/security', function() {
-            return view('profile.security');
-        })->name('security');
-        
-        Route::put('/password', function(Request $request) {
-            $request->validate([
-                'current_password' => 'required|current_password',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-            
-            Auth::user()->update([
-                'password' => bcrypt($request->password)
-            ]);
-            
-            return back()->with('success', 'Password aggiornata con successo');
-        })->name('password.update');
     });
 
 });
