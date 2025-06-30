@@ -99,7 +99,8 @@ class NotificheController extends Controller
             }
 
             $utenti = User::where('id', '!=', Auth::id())
-                         ->orderBy('name')
+                         ->orderBy('cognome')
+                         ->orderBy('nome')
                          ->get();
 
             $volontari = Volontario::where('stato', 'attivo')
