@@ -1,0 +1,1 @@
+<h1>Magazzino - Lista articoli</h1>

@@ -4,9 +4,9 @@
 <div class="container-fluid">
     <div class="card shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title">👥 Elenco Volontari</h3>
-            <a href="{{ route('volontari.create') }}" class="btn btn-success">
-                <i class="fas fa-plus-circle"></i> Aggiungi Volontario
+            <h3 class="card-title">🚛 Mezzi</h3>
+            <a href="{{ route('mezzi.create') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Aggiungi Mezzo
             </a>
         </div>
         <div class="card-body">
@@ -14,23 +14,23 @@
                 <table class="table table-bordered table-hover table-striped mb-0">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nome</th>
-                            <th>Email</th>
-                            <th>Ruolo</th>
+                            <th>Targa</th>
+                            <th>Modello</th>
+                            <th>Stato</th>
                             <th>Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($volontari as $volontario)
+                        @forelse ($mezzi as $mezzo)
                         <tr>
-                            <td>{{ $volontario->name }}</td>
-                            <td>{{ $volontario->email }}</td>
-                            <td>{{ ucfirst($volontario->ruolo) }}</td>
+                            <td>{{ $mezzo->targa }}</td>
+                            <td>{{ $mezzo->modello }}</td>
+                            <td>{{ ucfirst($mezzo->stato) }}</td>
                             <td>
-                                <a href="{{ route('volontari.edit', $volontario->id) }}" class="btn btn-primary btn-sm">
+                                <a href="{{ route('mezzi.edit', $mezzo->id) }}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-edit"></i> Modifica
                                 </a>
-                                <form action="{{ route('volontari.destroy', $volontario->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Eliminare questo volontario?');">
+                                <form action="{{ route('mezzi.destroy', $mezzo->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Eliminare questo mezzo?');">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-danger btn-sm">
@@ -41,7 +41,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted">Nessun volontario trovato.</td>
+                            <td colspan="4" class="text-center text-muted">Nessun mezzo trovato.</td>
                         </tr>
                         @endforelse
                     </tbody>
