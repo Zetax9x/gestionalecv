@@ -490,9 +490,9 @@ class NotificheController extends Controller
                     }
 
                     // Notifica ai responsabili
-                    $responsabili = User::whereHas('roles', function($q) {
-                        $q->whereIn('name', ['admin', 'responsabile']);
-                    })->get();
+                    $responsabili = User::whereIn('ruolo', ['admin', 'direttivo'])
+                        ->where('attivo', true)
+                        ->get();
 
                     self::createSystemNotification(
                         $responsabili,
