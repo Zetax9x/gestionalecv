@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('assegnazioni_dpi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dpi_id')->constrained()->onDelete('cascade');
-            $table->foreignId('volontario_id')->constrained()->onDelete('cascade');
+            $table->foreignId('dpi_id')->constrained("users")->onDelete('cascade');
+            $table->foreignId('volontario_id')->constrained("users")->onDelete('cascade');
             $table->foreignId('assegnato_da')->constrained('users')->onDelete('cascade');
             
             // Date assegnazione/restituzione

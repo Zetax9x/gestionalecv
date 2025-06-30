@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->string('numero_ticket')->unique(); // Generato automaticamente
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Chi ha creato
+            $table->foreignId('user_id')->constrained("users")->onDelete('cascade'); // Chi ha creato
             $table->foreignId('assegnato_a')->nullable()->constrained('users')->onDelete('set null');
             
             // Informazioni Base
@@ -59,8 +59,8 @@ return new class extends Migration
             $table->integer('tempo_risoluzione_ore')->nullable(); // Calcolato automaticamente
             
             // Dettagli Tecnici
-            $table->foreignId('mezzo_id')->nullable()->constrained()->onDelete('set null');
-            $table->foreignId('dpi_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('mezzo_id')->nullable()->constrained("users")->onDelete('set null');
+            $table->foreignId('dpi_id')->nullable()->constrained("users")->onDelete('set null');
             $table->foreignId('articolo_magazzino_id')->nullable()->constrained('magazzino')->onDelete('set null');
             $table->string('ubicazione_problema')->nullable();
             

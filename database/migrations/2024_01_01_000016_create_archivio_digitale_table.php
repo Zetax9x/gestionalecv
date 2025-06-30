@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('archivio_digitale', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Chi ha caricato
+            $table->foreignId('user_id')->constrained("users")->onDelete('cascade'); // Chi ha caricato
             
             // Informazioni Base
             $table->string('nome_documento');
@@ -91,7 +91,7 @@ return new class extends Migration
             $table->index('livello_accesso');
             $table->index('hash_file');
             $table->index('versione_corrente');
-            $table->fullText(['nome_documento', 'descrizione', 'parole_chiave']);
+            $table->fullText(['nome_documento', 'descrizione', 'parole_chiave'], 'archivio_search_idx');
         });
     }
 

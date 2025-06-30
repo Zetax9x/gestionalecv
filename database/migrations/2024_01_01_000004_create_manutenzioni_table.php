@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('manutenzioni', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mezzo_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Chi ha registrato
+            $table->foreignId('mezzo_id')->constrained('mezzi')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained("users")->onDelete('cascade'); // Chi ha registrato
             $table->date('data_manutenzione');
             $table->enum('tipo', [
                 'tagliando',

@@ -67,9 +67,9 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         // Log dell'accesso
-        activity()
-            ->causedBy($user)
-            ->log('Accesso effettuato da IP: ' . $request->ip());
+//        activity()
+  //          ->causedBy($user)
+    //        ->log('Accesso effettuato da IP: ' . $request->ip());
 
         return redirect()->intended('/dashboard');
     }

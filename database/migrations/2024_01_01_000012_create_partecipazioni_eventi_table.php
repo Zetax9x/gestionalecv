@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('partecipazioni_eventi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('evento_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('evento_id')->constrained("users")->onDelete('cascade');
+            $table->foreignId('user_id')->constrained("users")->onDelete('cascade');
             
             // Stato Partecipazione
             $table->enum('stato', [

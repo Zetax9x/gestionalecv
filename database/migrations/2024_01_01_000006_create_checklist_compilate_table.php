@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('checklist_compilate', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mezzo_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('mezzo_id')->constrained("users")->onDelete('cascade');
+            $table->foreignId('user_id')->constrained("users")->onDelete('cascade');
             $table->foreignId('template_id')->constrained('checklist_templates')->onDelete('cascade');
             $table->json('risultati'); // Array con i risultati dei controlli
             /* Struttura risultati JSON:
