@@ -94,7 +94,7 @@ class NotificheController extends Controller
     {
         try {
             // Solo admin e responsabili possono creare notifiche
-            if (!Auth::user()->hasPermission('notifiche.create')) {
+            if (!Auth::user()->hasPermission('notifiche', 'create')) {
                 abort(403, 'Non hai i permessi per creare notifiche');
             }
 
@@ -218,7 +218,7 @@ class NotificheController extends Controller
     {
         try {
             // Verifica che l'utente possa vedere questa notifica
-            if ($notifica->user_id !== Auth::id() && !Auth::user()->hasPermission('notifiche.view_all')) {
+            if ($notifica->user_id !== Auth::id() && !Auth::user()->hasPermission('notifiche', 'view_all')) {
                 abort(403, 'Non autorizzato a visualizzare questa notifica');
             }
 
@@ -295,7 +295,7 @@ class NotificheController extends Controller
     {
         try {
             // Verifica che l'utente possa eliminare questa notifica
-            if ($notifica->user_id !== Auth::id() && !Auth::user()->hasPermission('notifiche.delete_all')) {
+            if ($notifica->user_id !== Auth::id() && !Auth::user()->hasPermission('notifiche', 'delete_all')) {
                 abort(403, 'Non autorizzato a eliminare questa notifica');
             }
 
