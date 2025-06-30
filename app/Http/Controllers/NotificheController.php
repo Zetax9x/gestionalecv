@@ -161,6 +161,7 @@ class NotificheController extends Controller
             foreach ($validated['destinatari'] as $userId) {
                 $notifica = Notifica::create([
                     'user_id' => $userId,
+                    'destinatari' => [$userId],
                     'tipo' => $validated['tipo'],
                     'titolo' => $validated['titolo'],
                     'messaggio' => $validated['messaggio'],
@@ -414,9 +415,10 @@ class NotificheController extends Controller
 
             foreach ($users as $user) {
                 $userId = is_object($user) ? $user->id : $user;
-                
+
                 Notifica::create([
                     'user_id' => $userId,
+                    'destinatari' => [$userId],
                     'tipo' => $tipo,
                     'titolo' => $titolo,
                     'messaggio' => $messaggio,

@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('tipo');
             $table->json('letta_da')->nullable();
             $table->enum('priorita', ['bassa', 'normale', 'alta', 'urgente'])->default('normale');
-            $table->string('url_azione')->nullable();
-            $table->string('testo_azione')->nullable();
+            $table->string('url_azione', 500)->nullable();
+            $table->string('testo_azione', 100)->nullable();
             $table->timestamp('scade_il')->nullable();
             $table->json('metadati')->nullable();
             $table->timestamp('read_at')->nullable();
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->softDeletes();
             
             $table->index('user_id');
+            $table->index(['user_id', 'tipo']);
             $table->index('tipo');
             $table->index('priorita');
             $table->index('scade_il');
