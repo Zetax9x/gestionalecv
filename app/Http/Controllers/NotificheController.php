@@ -169,7 +169,7 @@ class NotificheController extends Controller
                     'scade_il' => $validated['scade_il'],
                     'metadati' => json_encode([
                         'created_by' => Auth::id(),
-                        'created_by_name' => Auth::user()->name,
+                        'created_by_name' => Auth::user()->nome_completo,
                         'invia_email' => $validated['invia_email'] ?? false,
                         'invia_push' => $validated['invia_push'] ?? false
                     ])
