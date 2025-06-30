@@ -59,8 +59,8 @@ return new class extends Migration
             $table->integer('tempo_risoluzione_ore')->nullable(); // Calcolato automaticamente
             
             // Dettagli Tecnici
-            $table->foreignId('mezzo_id')->nullable()->constrained("users")->onDelete('set null');
-            $table->foreignId('dpi_id')->nullable()->constrained("users")->onDelete('set null');
+            $table->foreignId('mezzo_id')->nullable()->constrained('mezzi')->onDelete('set null');
+            $table->foreignId('dpi_id')->nullable()->constrained('dpi')->onDelete('set null');
             $table->foreignId('articolo_magazzino_id')->nullable()->constrained('magazzino')->onDelete('set null');
             $table->string('ubicazione_problema')->nullable();
             

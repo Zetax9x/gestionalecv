@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('allegati_tickets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ticket_id')->constrained("users")->onDelete('cascade');
+            $table->foreignId('ticket_id')->constrained('tickets')->onDelete('cascade');
             $table->foreignId('user_id')->constrained("users")->onDelete('cascade'); // Chi ha caricato
             
             // File Info
