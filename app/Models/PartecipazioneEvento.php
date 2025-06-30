@@ -9,28 +9,46 @@ class PartecipazioneEvento extends Model
 {
     use HasFactory;
 
-    protected $table = 'partecipazione_eventi';
+    // Tabella associata al modello
+    protected $table = 'partecipazioni_eventi';
 
     protected $fillable = [
         'evento_id',
-        'volontario_id',
         'user_id',
-        'stato_partecipazione',
+        'stato',
         'data_iscrizione',
         'data_conferma',
-        'note',
+        'data_annullamento',
+        'presente',
+        'ora_arrivo',
+        'ora_uscita',
+        'note_presenza',
+        'superato',
+        'voto',
+        'numero_attestato',
+        'data_rilascio_attestato',
+        'file_attestato',
         'valutazione_evento',
-        'feedback',
-        'ore_effettive',
-        'certificato_inviato'
+        'feedback_evento',
+        'valutazione_docenti',
+        'feedback_docenti',
+        'suggerimenti',
+        'consiglia_evento',
+        'motivo_rifiuto',
+        'motivo_annullamento',
+        'note'
     ];
 
     protected $casts = [
         'data_iscrizione' => 'datetime',
         'data_conferma' => 'datetime',
+        'data_annullamento' => 'datetime',
+        'presente' => 'boolean',
+        'superato' => 'boolean',
+        'data_rilascio_attestato' => 'date',
         'valutazione_evento' => 'integer',
-        'ore_effettive' => 'decimal:2',
-        'certificato_inviato' => 'boolean'
+        'valutazione_docenti' => 'integer',
+        'consiglia_evento' => 'boolean'
     ];
 
     // ===================================
@@ -66,7 +84,7 @@ class PartecipazioneEvento extends Model
             'cancellato' => 'Cancellato'
         ];
         
-        return $labels[$this->stato_partecipazione] ?? 'Sconosciuto';
+        return $labels[$this->stato] ?? 'Sconosciuto';
     }
 
     public function getColoreStatoAttribute()
@@ -79,7 +97,7 @@ class PartecipazioneEvento extends Model
             'cancellato' => 'danger'
         ];
         
-        return $colori[$this->stato_partecipazione] ?? 'secondary';
+        return $colori[$this->stato] ?? 'secondary';
     }
 
     // ===================================
@@ -88,12 +106,12 @@ class PartecipazioneEvento extends Model
 
     public function scopeConfermati($query)
     {
-        return $query->where('stato_partecipazione', 'confermato');
+        return $query->where('stato', 'confermato');
     }
 
     public function scopePresenti($query)
     {
-        return $query->where('stato_partecipazione', 'presente');
+        return $query->where('stato', 'presente');
     }
 
     public function scopePerEvento($query, $eventoId)
@@ -108,7 +126,7 @@ class PartecipazioneEvento extends Model
     public function conferma()
     {
         $this->update([
-            'stato_partecipazione' => 'confermato',
+            'stato' => 'confermato',
             'data_conferma' => now()
         ]);
     }
@@ -116,22 +134,21 @@ class PartecipazioneEvento extends Model
     public function marcaPresente($oreEffettive = null)
     {
         $this->update([
-            'stato_partecipazione' => 'presente',
-            'ore_effettive' => $oreEffettive ?? $this->evento->durata_ore
+            'stato' => 'presente'
         ]);
     }
 
     public function marcaAssente()
     {
         $this->update([
-            'stato_partecipazione' => 'assente'
+            'stato' => 'assente'
         ]);
     }
 
     public function cancella()
     {
         $this->update([
-            'stato_partecipazione' => 'cancellato'
+            'stato' => 'cancellato'
         ]);
     }
 }
